@@ -82,7 +82,7 @@ class ETLConfiguration(object):
 
     GROUP_NAME = "name"
 
-    def init(self, config={}):
+    def __init__(self, config={}):
         self.config = config
 
     def add_dir(self, dir, regexes, name_parser):
