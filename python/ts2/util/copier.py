@@ -12,6 +12,7 @@ class Copier(Thread):
     def __init__(self, dirs):
         Thread.__init__(self)
         self.dirs = dirs
+        self.processes = []
 
     def copy_dir(self, src, dst):
         fs = []
@@ -21,12 +22,11 @@ class Copier(Thread):
             shutil.copy(f, dst)
 
     def start(self):
-        self.threads = []
         for src, dst in self.dirs:
             t = Process(target=self.copy_dir, args=(src, dst))
-            self.threads.append(t)
+            self.processes.append(t)
             t.start()
 
     def stop(self):
-        for thread in self.threads:
-            thread.stop()
+        for proc in self.processes:
+            proc.terminate()
