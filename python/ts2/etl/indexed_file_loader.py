@@ -45,17 +45,18 @@ class FinishedFileNotifier(RegexMatchingEventHandler, Thread):
 
     def on_created(self, event):
         if isinstance(event, FileCreatedEvent):
-            debugLog(str(event))
-            self._event_dict[event.src_path] = time.time()
+            t = time.time()
+            debugLog("Inserting %s with time %s into event_dict" % (event.src_path, str(t)))
+            self._event_dict[event.src_path] = t
 
     def on_modified(self, event):
         if isinstance(event, FileModifiedEvent):
-            debugLog(str(event))
-            self._event_dict[event.src_path] = time.time()
+            t = time.time()
+            debugLog("Inserting %s with time %s into event_dict" % (event.src_path, str(t)))
+            self._event_dict[event.src_path] = t
 
     def _generate_notifications(self):
         cur_time = time.time()
-        print "len(self._event_dict): %d" % len(self._event_dict)
         for (file, t) in self._event_dict.items():
             debugLog("Checking file %s with time %s" % (file, str(t)))
             if (cur_time - t) > self.mod_time:
