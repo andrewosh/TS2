@@ -1,6 +1,7 @@
 from ts2.etl.indexed_file_loader import Synchronizer
 import happybase
 import ts2.settings as settings
+from ts2.util.logging import debugLog
 
 class HBaseSynchronizer(Synchronizer):
     """
@@ -30,4 +31,5 @@ class HBaseSynchronizer(Synchronizer):
             data_dict = {
                 settings.BASE_COL_FAM + ':data': data
             }
+            debugLog("Inserting %s into %s" % (data_dict.keys()[0], str(idx)))
             self.table.put(idx, data_dict)
