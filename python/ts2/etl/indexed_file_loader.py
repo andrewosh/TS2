@@ -136,6 +136,8 @@ class FileLoadManager(Thread):
 
         :param dirs_and_regexes: A dictionary of (dir, [regex1, regex2...]) pairs
         """
+        Thread.__init__(self)
+
         self.synchronizer = synchronizer
 
         def make_notifier(dir, regexes, name_parser):
