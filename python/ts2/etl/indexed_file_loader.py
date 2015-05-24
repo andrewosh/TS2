@@ -57,6 +57,7 @@ class FinishedFileNotifier(RegexMatchingEventHandler, Thread):
         for (file, t) in self._event_dict.items():
             if (cur_time - t) > self.mod_time:
                 notification = (self.root, file, ETLConfiguration.get_time_index(file, self.name_parser))
+                debugLog("Inserting %s into notification queue" % str(notification))
                 self._queue.put(notification)
                 del self._event[file]
 
@@ -64,6 +65,7 @@ class FinishedFileNotifier(RegexMatchingEventHandler, Thread):
         notifications = []
         while not self._queue.empty():
             notifications.append(self._queue.get())
+        debugLog("In get_notifications, notifications: %s" % str(notifications))
         return notifications
 
     def run(self):
