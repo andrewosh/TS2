@@ -147,7 +147,6 @@ class FileLoadManager(Thread):
             return FinishedFileNotifier(dir, [self], regexes, name_parser)
         self._notifiers = [make_notifier(dir, regexes, name_parser) for (dir, regexes, name_parser) in etl_conf.get_configs()]
 
-
         self._stopped = False
 
     def run(self):
@@ -156,6 +155,8 @@ class FileLoadManager(Thread):
         completion notifications.
         """
         self.synchronizer.initialize()
+        for notifier in self._notifiers:
+            notifier.start()
         while not self._stopped:
             for nid, notifier in enumerate(self._notifiers):
                 ns = notifier.get_notifications()
