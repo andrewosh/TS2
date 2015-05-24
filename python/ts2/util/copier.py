@@ -1,8 +1,9 @@
 import os
 import shutil
 from threading import Thread
+from multiprocessing import Process
 
-class Copier(object):
+class Copier(Thread):
     """
     The Copier copies all ordered files in one directory tree into another directory, with an optional
     delay after each copy.
@@ -22,7 +23,7 @@ class Copier(object):
     def start(self):
         self.threads = []
         for src, dst in self.dirs:
-            t = Thread(self.copy_dir, args=(src, dst))
+            t = Process(target=self.copy_dir, args=(src, dst))
             self.threads.append(t)
             t.start()
 
