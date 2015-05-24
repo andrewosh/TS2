@@ -113,7 +113,8 @@ class ETLConfiguration(object):
             conf = json.load(f)
             dir_configs = conf['dirs']
             etl_configuration = ETLConfiguration()
-            for dir in dir_configs:
+            for dir_obj in dir_configs:
+                dir = dir_obj['dir']
                 name = dir['name']
                 regexes = dir['regexes']
                 parsers = dir['parsers']
