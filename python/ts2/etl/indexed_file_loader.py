@@ -67,6 +67,7 @@ class FinishedFileNotifier(RegexMatchingEventHandler, Thread):
         return notifications
 
     def run(self):
+        debugLog("Starting file observer on: %s" % self.root)
         self._observer.start()
         while not self._stopped:
             self._generate_notifications()

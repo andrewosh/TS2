@@ -2,6 +2,8 @@
 Helper methods for consistent logging
 """
 import logging
+import sys
+
 import ts2.settings as settings
 
 class Logger(object):
@@ -11,6 +13,7 @@ class Logger(object):
     @staticmethod
     def getInstance():
         if not Logger._singleton:
+            logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
             Logger._singleton = logging.Logger()
             Logger.configure(Logger._singleton)
         return Logger._singleton
