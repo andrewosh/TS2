@@ -110,7 +110,7 @@ class ETLConfiguration(object):
     @staticmethod
     def load_from_json(json_file):
         with open(json_file, 'r') as f:
-            conf = json.load(json_file)
+            conf = json.load(f)
             dir_configs = conf['dirs']
             etl_configuration = ETLConfiguration()
             for dir in dir_configs:
