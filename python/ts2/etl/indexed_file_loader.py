@@ -44,13 +44,13 @@ class FinishedFileNotifier(RegexMatchingEventHandler, Thread):
         self._observer.stop()
 
     def on_created(self, event):
-        debugLog(str(event))
         if isinstance(event, FileCreatedEvent):
+            debugLog(str(event))
             self._event_dict[event.src_path] = time.time()
 
     def on_modified(self, event):
-        debugLog(str(event))
         if isinstance(event, FileModifiedEvent):
+            debugLog(str(event))
             self._event_dict[event.src_path] = time.time()
 
     def _generate_notifications(self):
