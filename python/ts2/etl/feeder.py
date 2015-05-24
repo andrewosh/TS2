@@ -6,8 +6,11 @@ class Feeder(object):
     The Feeder loads in time-indexed files and inserts them into an HBase database
     """
 
-    def start(self, conf_file):
-        conf = ETLConfiguration.load_from_json(conf_file)
+    def __init__(self, conf_file):
+        self.conf_file = conf_file
+
+    def start(self):
+        conf = ETLConfiguration.load_from_json(self.conf_file)
         hbs = HBaseSynchronizer()
         flm = FileLoadManager(conf, hbs)
 

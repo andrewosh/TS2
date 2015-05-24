@@ -2,7 +2,7 @@ from threading import Thread
 from watchdog.observers import Observer
 from watchdog.events import RegexMatchingEventHandler, FileCreatedEvent, FileModifiedEvent
 from Queue import Queue
-import os
+import json
 import time
 from abc import abstractmethod
 
@@ -18,7 +18,8 @@ class FinishedFileNotifier(RegexMatchingEventHandler, Thread):
     """
 
     def __init__(self, root, subscribers, regexes, name_parser):
-        super(self).__init__(self, regexes)
+        RegexMatchingEventHandler.__init__(self, regexes)
+        Thread.__init__(self)
         self.mod_time = settings.MOD_TIME
         self.root = root
         self.subscribers = subscribers
@@ -106,6 +107,20 @@ class ETLConfiguration(object):
             return
         return match.group(ETLConfiguration.GROUP_NAME)
 
+    @staticmethod
+    def load_from_json(json_file):
+        with open(json_file, 'r') as f:
+            conf = json.load(json_file)
+            dir_configs = conf['dirs']
+            etl_configuration = ETLConfiguration()
+            for dir in dir_configs:
+                name = dir['name']
+                regexes = dir['regexes']
+                parsers = dir['parsers']
+                etl_configuration.add_dir(name, regexes, parsers)
+            return etl_configuration
+        return None
+
 
 class FileLoadManager(Thread):
     """
@@ -167,4 +182,4 @@ class Synchronizer(object):
         :param data_list:
         :return:
         """
-        # TODO Resume here
+        pass

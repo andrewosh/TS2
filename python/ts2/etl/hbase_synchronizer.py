@@ -9,7 +9,7 @@ class HBaseSynchronizer(Synchronizer):
     """
 
     def __init__(self):
-        super(self).__init__(self)
+        Synchronizer.__init__(self)
 
         self.conn = happybase.Connection(settings.HBASE_HOST)
         if settings.HBASE_TABLE not in set(self.conn.tables()):
