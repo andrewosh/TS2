@@ -16,8 +16,9 @@ class Copier(Thread):
 
     def copy_dir(self, src, dst):
         fs = []
-        for (root, dir, file) in os.walk(src):
-            fs.append(os.path.join(root, file))
+        for (root, dir, files) in os.walk(src):
+            for f in files:
+                fs.append(os.path.join(root, f))
         for f in sorted(fs):
             shutil.copy(f, dst)
 
