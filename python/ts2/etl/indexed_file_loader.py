@@ -56,6 +56,7 @@ class FinishedFileNotifier(RegexMatchingEventHandler, Thread):
     def _generate_notifications(self):
         cur_time = time.time()
         for (file, t) in self._event_dict.items():
+            debugLog("Checking file %s with time %s" % (file, str(t)))
             if (cur_time - t) > self.mod_time:
                 debugLog("Inserting %s into notification queue" % str(notification))
                 notification = (self.root, file, ETLConfiguration.get_time_index(file, self.name_parser))
