@@ -43,10 +43,12 @@ class FinishedFileNotifier(RegexMatchingEventHandler, Thread):
         self._observer.stop()
 
     def on_created(self, event):
+        debugLog(str(event))
         if isinstance(event, FileCreatedEvent):
             self._event_dict[event.src_path] = time.time()
 
     def on_modified(self, event):
+        debugLog(str(event))
         if isinstance(event, FileModifiedEvent):
             self._event_dict[event.src_path] = time.time()
 
