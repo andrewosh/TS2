@@ -145,7 +145,7 @@ class FileLoadManager(Thread):
 
         self._stopped = False
 
-    def start(self):
+    def run(self):
         """
         Starts the FinishedFileNotifiers, then begin checking each of their notification queues for file
         completion notifications.
