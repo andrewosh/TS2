@@ -25,18 +25,18 @@ class Logger(object):
         """
         pass
 
-def debugLog(self, msg):
+def debugLog(msg):
     log = Logger.getInstance()
     log.debug(msg)
 
-def infoLog(self, msg):
+def infoLog(msg):
     log = Logger.getInstance()
     log.info(msg)
 
-def warningLog(self, msg):
+def warningLog(msg):
     log = Logger.getInstance()
     log.warning(msg)
 
-def errorLog(self, msg):
+def errorLog(msg):
     log = Logger.getInstance()
     log.error(msg)
