@@ -5,6 +5,7 @@ from Queue import Queue
 import json
 import time
 from abc import abstractmethod
+from re import search
 
 from ts2.util.log import debugLog, errorLog, infoLog, warningLog
 import ts2.settings as settings
@@ -56,8 +57,8 @@ class FinishedFileNotifier(RegexMatchingEventHandler, Thread):
         cur_time = time.time()
         for (file, t) in self._event_dict.items():
             if (cur_time - t) > self.mod_time:
-                notification = (self.root, file, ETLConfiguration.get_time_index(file, self.name_parser))
                 debugLog("Inserting %s into notification queue" % str(notification))
+                notification = (self.root, file, ETLConfiguration.get_time_index(file, self.name_parser))
                 self._queue.put(notification)
                 del self._event[file]
 
@@ -106,9 +107,10 @@ class ETLConfiguration(object):
 
     @staticmethod
     def get_time_index(fname, name_parser):
-        match = name_parser.search(fname)
+        debugLog("Getting time index from %s with parser %s" % (fname, name_parser))
+        match = re.search(name_parser, fname)
         if not match:
-            logWarning("Cannot parse time index out of filename: %s" % fname)
+            warningLog("Cannot parse time index out of filename: %s" % fname)
             return
         return match.group(ETLConfiguration.GROUP_NAME)
 
