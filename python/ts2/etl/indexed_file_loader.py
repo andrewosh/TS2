@@ -138,7 +138,7 @@ class FileLoadManager(Thread):
         """
         self.synchronizer = synchronizer
 
-        def make_notifier(dir, regexes):
+        def make_notifier(dir, regexes, name_parser):
             return FinishedFileNotifier(dir, [self], regexes, name_parser)
         self._notifiers = [make_notifier(dir, regexes, name_parser) for (dir, regexes, name_parser) in etl_conf.get_configs()]
 
