@@ -11,3 +11,4 @@ DERIVATIVE_COL_FAM = 'derivative'
 HBASE_FAMILIES = {BASE_COL_FAM: dict(), DERIVATIVE_COL_FAM: dict()}
 
 # Logging-related
+LOG_FILE = "feeder.log"

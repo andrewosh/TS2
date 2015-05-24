@@ -13,7 +13,7 @@ class Logger(object):
     @staticmethod
     def getInstance():
         if not Logger._singleton:
-            logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+            logging.basicConfig(filename=settings.LOG_FILE, level=logging.DEBUG)
             Logger._singleton = logging.Logger()
             Logger.configure(Logger._singleton)
         return Logger._singleton
