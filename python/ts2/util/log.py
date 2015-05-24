@@ -14,7 +14,7 @@ class Logger(object):
     def getInstance():
         if not Logger._singleton:
             logging.basicConfig(filename=settings.LOG_FILE, level=logging.DEBUG)
-            Logger._singleton = logging.getInstance(__name__)
+            Logger._singleton = log.getInstance(__name__)
             Logger.configure(Logger._singleton)
         return Logger._singleton
 

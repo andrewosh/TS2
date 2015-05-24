@@ -1,7 +1,7 @@
 from ts2.etl.indexed_file_loader import Synchronizer
 import happybase
 import ts2.settings as settings
-from ts2.util.logging import debugLog
+from ts2.util.log import debugLog
 
 class HBaseSynchronizer(Synchronizer):
     """

@@ -6,7 +6,7 @@ import json
 import time
 from abc import abstractmethod
 
-from ts2.util.logging import debugLog, errorLog, infoLog, warningLog
+from ts2.util.log import debugLog, errorLog, infoLog, warningLog
 import ts2.settings as settings
 
 
