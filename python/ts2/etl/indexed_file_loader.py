@@ -176,6 +176,14 @@ class Synchronizer(object):
     """
 
     @abstractmethod
+    def initialize(self):
+        pass
+
+    @abstractmethod
+    def terminate(self):
+        pass
+
+    @abstractmethod
     def synchronize(self, sequence_id, data_list):
         """
 

@@ -8,14 +8,16 @@ class HBaseSynchronizer(Synchronizer):
     sequences can be associated with the same time indices) by inserting the data into an HBase table
     """
 
-    def __init__(self):
-        Synchronizer.__init__(self)
-
+    def initialize(self):
         self.conn = happybase.Connection(settings.HBASE_HOST)
         if settings.HBASE_TABLE not in set(self.conn.tables()):
             self.conn.create_table(settings.HBASE_TABLE, settings.HBASE_FAMILIES)
 
         self.table = self.conn.table(settings.HBASE_TABLE)
+
+    def terminate(self):
+        self.conn.close()
+        self.table = None
 
     def synchronize(self, sequence_id, data_list):
         """
