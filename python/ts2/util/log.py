@@ -6,9 +6,12 @@ import sys
 
 import ts2.settings as settings
 
+from threading import Lock
+
 class Logger(object):
 
     _singleton = None
+    log_lock = Lock()
 
     @staticmethod
     def getInstance():
@@ -25,18 +28,29 @@ class Logger(object):
         """
         pass
 
+def lock_method(func):
+    def func(*args, **kwargs):
+        Logger.log_lock.acquire()
+        func(args, kwargs)
+        Logger.log_lock.release()
+    return func
+
+@lock_method
 def debugLog(msg):
     log = Logger.getInstance()
     log.debug(msg)
 
+@lock_method
 def infoLog(msg):
     log = Logger.getInstance()
     log.info(msg)
 
+@lock_method
 def warningLog(msg):
     log = Logger.getInstance()
     log.warning(msg)
 
+@lock_method
 def errorLog(msg):
     log = Logger.getInstance()
     log.error(msg)
