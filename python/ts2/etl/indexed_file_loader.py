@@ -173,12 +173,12 @@ class FileLoadManager(Thread):
         self._stopped = False
 
         # Keep track of the minimum filename-based time-index that we've encountered
-        self.min_idx = 0
+        self.min_idx = None
 
     def _notification_to_record(self, dataset_id, idx, path):
         data = open(path, 'rb').read()
         int_idx = int(idx)
-        if int_idx < self.min_idx:
+        if self.min_idx is None:
             self.min_idx = int_idx
         normalized_idx = int_idx - self.min_idx
         return (dataset_id, str(normalized_idx), data)
