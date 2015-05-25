@@ -24,7 +24,7 @@ print(colored('      IIIIIIIII         ', 'yellow') + 'version ' + thunder.__ver
 print(colored('       IIIIIII          ', 'yellow'))
 print('')
 
-print('A Thunder context is available as tsc')
+print "+"
 
 """
  Start streaming component
@@ -42,16 +42,18 @@ f = Feeder(etl_conf, db_manager)
 tssc = ThunderStreamingContext(tsc, sc, f)
 
 print('')
-print(colored('       IIIII                       IIIIIII             ', 'red'))
-print(colored('       IIIII                  IIIIIIIIIII              ', 'red'))
-print(colored('    IIIIIIIIIIIIIIIIIII   IIIIIIIIII                   ', 'red'))
-print(colored('    IIIIIIIIIIIIIIIIII   IIIIIIIIIII                   ', 'red'))
-print(colored('      IIIII               IIIIIIIIIII                  ', 'red'))
-print(colored('     IIIII                  IIIIIIIIIIII               ', 'red'))
-print(colored('     IIIII                  IIIIIIIIIII                ', 'red') + 'Thunder Streaming')
-print(colored('      IIIIIIIII            IIIIIIIIII                  ', 'red') + 'version ' + 0.01)
-print(colored('       IIIIIII          IIIIIIIII                      ', 'red'))
+print(colored('       IIIII                       IIIIIII    ', 'red'))
+print(colored('       IIIII                  IIIIIIIIIII     ', 'red'))
+print(colored('    IIIIIIIIIIIIIIIIIII   IIIIIIIIII          ', 'red'))
+print(colored('    IIIIIIIIIIIIIIIIII   IIIIIIIIIII          ', 'red'))
+print(colored('      IIIII               IIIIIIIIIII         ', 'red'))
+print(colored('     IIIII                  IIIIIIIIIIII      ', 'red'))
+print(colored('     IIIII                  IIIIIIIIIII       ', 'red') + 'Thunder Streaming')
+print(colored('      IIIIIIIII            IIIIIIIIII         ', 'red') + 'version ' + str(0.01))
+print(colored('       IIIIIII          IIIIIIIII             ', 'red'))
 print('')
 
+
+print('A Thunder context is available as tsc')
 print('A ThunderStreaming context is available as tssc')
 
