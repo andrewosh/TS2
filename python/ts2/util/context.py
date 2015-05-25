@@ -47,7 +47,7 @@ class ThunderStreamingContext(object):
             # TODO Convert the byte array into N chunks of bytes
             return [chunk for chunk in grouper(keyed_byte_arrs, last - first)]
         chunk_iter = grouper(range(minTime, maxTime), self.rows_per_partition)
-        chunk_rdd = self._sc.parallelize([(g[0], g[-1] + 1) for group in chunk_iter])
+        chunk_rdd = self._sc.parallelize([(group[0], group[-1] + 1) for group in chunk_iter])
         return chunk_rdd.map(lambda (first, last): _lb(first, last))
 
     def loadImages(self, datasetId=DATA_KEY, minTime=0, maxTime=-1):
