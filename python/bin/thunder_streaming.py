@@ -18,7 +18,7 @@ def main():
     sparkSubmit = os.path.join(SPARK_HOME, 'bin', 'pyspark')
 
     # add python script
-    os.environ['PYTHONSTARTUP'] = os.path.join(os.path.dirname(os.path.realpath(ts2.__file__)), 'utils', 'launch.py')
+    os.environ['PYTHONSTARTUP'] = os.path.join(os.path.dirname(os.path.realpath(ts2.__file__)), 'util', 'launch.py')
 
     # add ETL configuration
     os.environ['ETL_CONFIG'] = sys.argv[1]
