@@ -46,6 +46,8 @@ class ThunderStreamingContext(object):
             manager = HBaseManager()
             manager.initialize()
             keyed_byte_arrs = manager.get_rows(datasetId, minTime, maxTime)
+            if len(keyed_byte_arrs) == 0:
+                return []
             # TODO Convert the byte array into N chunks of bytes
             return [chunk for chunk in grouper(keyed_byte_arrs, last - first)]
         chunk_iter = grouper(range(minTime, maxTime), self.rows_per_partition)
