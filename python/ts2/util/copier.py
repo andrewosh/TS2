@@ -2,6 +2,7 @@ import os
 import shutil
 from threading import Thread
 from multiprocessing import Process
+import time
 
 class Copier(Thread):
     """
@@ -9,10 +10,11 @@ class Copier(Thread):
     delay after each copy.
     """
 
-    def __init__(self, dirs):
+    def __init__(self, dirs, delay=0):
         Thread.__init__(self)
         self.dirs = dirs
         self.processes = []
+        self.delay = delay
 
     def copy_dir(self, src, dst):
         fs = []
@@ -21,6 +23,7 @@ class Copier(Thread):
                 fs.append(os.path.join(root, f))
         for f in sorted(fs):
             shutil.copy(f, dst)
+            time.sleep(delay)
 
     def start(self):
         for src, dst in self.dirs:
