@@ -23,15 +23,7 @@ def main():
     # add ETL configuration
     os.environ['ETL_CONFIG'] = sys.argv[1]
 
-    # check for ipython option
-    if "-i" in childArgs:
-        os.environ['IPYTHON'] = '1'
-
-    # check for notebook option
-    if "-n" in childArgs:
-        os.environ['IPYTHON_OPTS'] = 'notebook'
-
-    os.execv(sparkSubmit, childArgs)
+    os.execv(sparkSubmit)
 
 if __name__ == "__main__":
     main()
