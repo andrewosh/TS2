@@ -13,13 +13,33 @@ import ts2.settings as settings
 
 class FinishedFileNotifier(RegexMatchingEventHandler, Thread):
     """
-    Handles events from the watchdog Observer. When a file hasn't been modified for a given duration, the
-    FinishedFileNotifier will send all subscribers an update of the form (root, path, idx), where root
-    is the root directory, path is the full path to the completed file, and idx is the file's time index.
+    Launches an watchdog Observer which looks for file creation/modifications in a given set of directories and
+    then passes notifications corresponding to those events to a subscriber.
     """
 
+    class FileModHandler(RegexMatchingEventHandler):
+        """
+        Handles events from the watchdog Observer. When a file hasn't been modified for a given duration, the
+        FileModHandler will insert an event into its queue corresponding to that file.
+        """
+
+        def __init__(self, regexes, event_dict):
+            RegexMatchingEventHandler.__init__(self, regexes)
+            self._event_dict = event_dict
+
+        def _process(self, event):
+            t = time.time()
+            debugLog("Inserting %s with time %s into event_dict" % (event.src_path, str(t)))
+            self._event_dict[event.src_path] = t
+
+        def on_created(self, event):
+            self._process(event)
+
+        def on_modified(self, event):
+            self._process(event)
+
+
     def __init__(self, root, subscribers, regexes, name_parser):
-        RegexMatchingEventHandler.__init__(self, regexes, ignore_directories=True)
         Thread.__init__(self)
         self.mod_time = settings.MOD_TIME
         self.root = root
@@ -42,16 +62,6 @@ class FinishedFileNotifier(RegexMatchingEventHandler, Thread):
         self._stopped = True
         self._observer.stop()
 
-    def on_created(self, event):
-        t = time.time()
-        debugLog("Inserting %s with time %s into event_dict" % (event.src_path, str(t)))
-        self._event_dict[event.src_path] = t
-
-    def on_modified(self, event):
-        t = time.time()
-        debugLog("Inserting %s with time %s into event_dict" % (event.src_path, str(t)))
-        self._event_dict[event.src_path] = t
-
     def _generate_notifications(self):
         cur_time = time.time()
         for (file, t) in self._event_dict.items():
@@ -71,8 +81,9 @@ class FinishedFileNotifier(RegexMatchingEventHandler, Thread):
 
     def run(self):
         self._observer = Observer()
-        self._observer.schedule(self, self.root, recursive=True)
-        debugLog("Starting file observer on: %s" % self.root)
+        self._observer.schedule(FinishedFileNotifier.FileModHandler(self.regexes, self._event_dict),
+                                self.root, recursive=True)
+        debugLog("Starting file observer on: %s with regexes %s" % (self.root, self.regexes))
         self._observer.start()
         while not self._stopped:
             self._generate_notifications()
