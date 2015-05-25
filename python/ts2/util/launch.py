@@ -39,6 +39,19 @@ etl_conf = os.environ['ETL_CONFIG']
 db_manager = HBaseManager()
 f = Feeder(etl_conf, db_manager)
 
-tssc = ThunderStreamingContext(tsc, sc, f, db_manager)
+tssc = ThunderStreamingContext(tsc, sc, f)
 
+print('')
+print(colored('       IIIII                       IIIIIII             ', 'red'))
+print(colored('       IIIII                  IIIIIIIIIII              ', 'red'))
+print(colored('    IIIIIIIIIIIIIIIIIII   IIIIIIIIII                   ', 'red'))
+print(colored('    IIIIIIIIIIIIIIIIII   IIIIIIIIIII                   ', 'red'))
+print(colored('      IIIII               IIIIIIIIIII                  ', 'red'))
+print(colored('     IIIII                  IIIIIIIIIIII               ', 'red'))
+print(colored('     IIIII                  IIIIIIIIIII                ', 'red') + 'Thunder Streaming')
+print(colored('      IIIIIIIII            IIIIIIIIII                  ', 'red') + 'version ' + 0.01)
+print(colored('       IIIIIII          IIIIIIIII                      ', 'red'))
+print('')
+
+print('A ThunderStreaming context is available as tssc')
 

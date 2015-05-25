@@ -13,11 +13,10 @@ class ThunderStreamingContext(object):
     DATA_KEY = 'data'
     REGRESSOR_KEY = 'regressor'
 
-    def __init__(self, tsc, sc, feeder, db_manager, batch_time=5):
+    def __init__(self, tsc, sc, feeder, batch_time=5):
         self._tsc = tsc
         self._sc = sc
         self._feeder = feeder
-        self._db_manager = db_manager
         self.ssc = StreamingContext(sc, batch_time)
 
         self.rows_per_partition = 5
@@ -43,7 +42,10 @@ class ThunderStreamingContext(object):
 
     def loadBytes(self, datasetId=DATA_KEY, minTime=0, maxTime=10):
         def _lb(first, last):
-            keyed_byte_arrs = self._db_manager.get_rows(datasetId, minTime, maxTime)
+            # TODO optimize this
+            manager = HBaseManager()
+            manager.initialize()
+            keyed_byte_arrs = manager.get_rows(datasetId, minTime, maxTime)
             # TODO Convert the byte array into N chunks of bytes
             return [chunk for chunk in grouper(keyed_byte_arrs, last - first)]
         chunk_iter = grouper(range(minTime, maxTime), self.rows_per_partition)
