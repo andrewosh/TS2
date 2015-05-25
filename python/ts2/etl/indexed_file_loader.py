@@ -5,7 +5,7 @@ from Queue import Queue
 import json
 import time
 from abc import abstractmethod
-from re import search
+import re
 
 from ts2.util.log import debugLog, errorLog, infoLog, warningLog
 import ts2.settings as settings
