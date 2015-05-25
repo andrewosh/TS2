@@ -39,10 +39,11 @@ class FinishedFileNotifier(Thread):
             self._process(event)
 
 
-    def __init__(self, root, subscribers, regexes, name_parser):
+    def __init__(self, root, id, subscribers, regexes, name_parser):
         Thread.__init__(self)
         self.mod_time = settings.MOD_TIME
         self.root = root
+        self.id = id
         self.subscribers = subscribers
         # For now, only support one regex
         self.name_parser = name_parser[0]
@@ -70,7 +71,7 @@ class FinishedFileNotifier(Thread):
         for (file, t) in self._event_dict.items():
             debugLog("Checking file %s with time %s" % (file, str(t)))
             if (cur_time - t) > self.mod_time:
-                notification = (self.root, file, ETLConfiguration.get_time_index(file, self.name_parser))
+                notification = (self.root, self.id, file, ETLConfiguration.get_time_index(file, self.name_parser))
                 debugLog("Inserting %s into notification queue" % str(notification))
                 self._queue.put(notification)
                 del self._event_dict[file]
@@ -107,19 +108,19 @@ class ETLConfiguration(object):
     def __init__(self, config={}):
         self.config = config
 
-    def add_dir(self, dir, regexes, name_parser):
+    def add_dir(self, dir, id, regexes, name_parser):
         """
         :param dir: The directory to monitor for new files
         :param regexes: The regexes with which to check for matching files
         :param name_parsers: A regex containing a match group named 'name', which after a file match will contain the
             time index.
         """
-        self.config[dir] = (regexes, name_parser)
+        self.config[dir] = (id, regexes, name_parser)
 
     def get_configs(self):
         for dir in self.config:
-            (regexes, name_parser) = self.config[dir]
-            yield (dir, regexes, name_parser)
+            (id, regexes, name_parser) = self.config[dir]
+            yield (dir, id, regexes, name_parser)
 
     @staticmethod
     def get_time_index(fname, name_parser):
@@ -139,9 +140,10 @@ class ETLConfiguration(object):
             for dir_obj in dir_configs:
                 dir = dir_obj['dir']
                 name = dir['name']
+                id = dir['id']
                 regexes = dir['regexes']
                 parsers = dir['parsers']
-                etl_configuration.add_dir(name, regexes, parsers)
+                etl_configuration.add_dir(name, id, regexes, parsers)
             return etl_configuration
         return None
 
@@ -163,11 +165,24 @@ class FileLoadManager(Thread):
 
         self.synchronizer = synchronizer
 
-        def make_notifier(dir, regexes, name_parser):
-            return FinishedFileNotifier(dir, [self], regexes, name_parser)
-        self._notifiers = [make_notifier(dir, regexes, name_parser) for (dir, regexes, name_parser) in etl_conf.get_configs()]
+        def make_notifier(dir, id, regexes, name_parser):
+            return FinishedFileNotifier(dir, id, [self], regexes, name_parser)
+        self._notifiers = []
+        for (dir, id, regexes, name_parser) in etl_conf.get_configs():
+            self._notifiers.append(make_notifier(dir, id, regexes, name_parser))
 
         self._stopped = False
+
+        # Keep track of the minimum filename-based time-index that we've encountered
+        self.min_idx = 0
+
+    def _notification_to_record(self, dataset_id, idx, path):
+        data = open(path, 'rb').read()
+        int_idx = int(idx)
+        if int_idx < self.min_idx:
+            self.min_idx = int_idx
+        normalized_idx = int_idx - self.min_idx
+        return (dataset_id, str(normalized_idx), data)
 
     def run(self):
         """
@@ -180,9 +195,9 @@ class FileLoadManager(Thread):
         while not self._stopped:
             for nid, notifier in enumerate(self._notifiers):
                 ns = notifier.get_notifications()
-                # Buffer the files in memory
-                loaded = map(lambda (root, path, idx): (root, idx, open(path, 'rb').read()), ns)
-                self.synchronizer.synchronize(nid, loaded)
+                # Buffer the files in memory, discard the root and use the ID from now on
+                record = map(lambda (root, id, path, idx): self._notification_to_record(id, idx, path), ns)
+                self.synchronizer.synchronize(nid, record)
 
     def stop(self):
         """
