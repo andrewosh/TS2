@@ -11,7 +11,7 @@ from ts2.util.log import debugLog, errorLog, infoLog, warningLog
 import ts2.settings as settings
 
 
-class FinishedFileNotifier(RegexMatchingEventHandler, Thread):
+class FinishedFileNotifier(Thread):
     """
     Launches an watchdog Observer which looks for file creation/modifications in a given set of directories and
     then passes notifications corresponding to those events to a subscriber.
@@ -24,7 +24,7 @@ class FinishedFileNotifier(RegexMatchingEventHandler, Thread):
         """
 
         def __init__(self, regexes, event_dict):
-            RegexMatchingEventHandler.__init__(self, regexes)
+            RegexMatchingEventHandler.__init__(self, regexes, ignore_directories=True)
             self._event_dict = event_dict
 
         def _process(self, event):
