@@ -83,6 +83,8 @@ class HBaseManager(Synchronizer):
         """
         rows = self.table.scan(row_start=self._get_padded_key(first), row_stop=self._get_padded_key(last),
                                filter=self.scan_filter)
+        # Realize the generator
+        rows = [row for row in rows]
         if len(rows) != (last - first):
             # Don't return a set of rows that don't contain a complete set of synchronized data
             return None
