@@ -23,7 +23,7 @@ def main():
     # add ETL configuration
     os.environ['ETL_CONFIG'] = sys.argv[1]
 
-    os.execv(sparkSubmit, [])
+    os.execv(sparkSubmit, [''])
 
 if __name__ == "__main__":
     main()
