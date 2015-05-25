@@ -16,9 +16,23 @@ class HBaseManager(Synchronizer):
 
         self.table = self.conn.table(settings.HBASE_TABLE)
 
+        # The base columns are set later by set_sequence_names
+        self.base_cols = None
+
+        # The scan filter can be set once the base columns are known
+        self.scan_filter = None
+
+    def set_sequence_names(self, names):
+        self.base_cols = names
+        self.scan_filter = ' AND '.join(map(lambda name: 'new SingleColumnValueFilter("%s", "%s", CompareOp.EQUAL, "%s")\.setFilterIfMissing(true)'\
+                                            % (settings.BASE_COL_FAM, settings.BASE_COL_QUALIFIER, name), names))
+
     def terminate(self):
         self.conn.close()
         self.table = None
+
+    def _get_qualified_name(self, col):
+        return ':'.join([settings.BASE_COL_FAM, settings.BASE_COL_QUALIFIER, col])
 
     def synchronize(self, sequence_id, data_list):
         """
@@ -31,7 +45,7 @@ class HBaseManager(Synchronizer):
         """
         for (id, idx, data)  in data_list:
             data_dict = {
-                settings.BASE_COL_FAM + ':' + id: data
+                ':'.join([settings.BASE_COL_FAM, settings.BASE_COL_QUALIFIER, id]): data
             }
             debugLog("Inserting %s into %s" % (data_dict.keys()[0], str(idx)))
             self.table.put(idx, data_dict)
@@ -53,5 +67,8 @@ class HBaseManager(Synchronizer):
         :param last: row value in the range (first, len(dataset)), or None for last index
         :return: a byte array
         """
-
-
+        rows = self.table.scan(row_start=str(first), row_stop=str(last), filter=self.scan_filter)
+        if len(rows) != (last - first):
+            # Don't return a set of rows that don't contain a complete set of synchronized data
+            return None
+        return map(lambda (row_key, row_data): (row_key, row_data[self._get_qualified_name(id)]))

@@ -217,6 +217,10 @@ class Synchronizer(object):
     """
 
     @abstractmethod
+    def set_sequence_names(self, names):
+        pass
+
+    @abstractmethod
     def initialize(self):
         pass
 
