@@ -87,6 +87,6 @@ class HBaseManager(Synchronizer):
         rows = [row for row in rows]
         if len(rows) != (last - first):
             # Don't return a set of rows that don't contain a complete set of synchronized data
-            return None
+            return []
         # Remove the zero padding and extract the dataset's column
         return map(lambda (row_key, row_data): (int(row_key), row_data[self._get_qualified_name(id)]))
