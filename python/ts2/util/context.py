@@ -57,7 +57,7 @@ class ThunderStreamingContext(object):
         pass
 
     def getBytesDStream(self, datasetId=DATA_KEY):
-        q = Queue()
+        q = []
         dstream = self.ssc.queueStream(q)
         loader = DStreamLoader(self, datasetId, q, self._poll_time)
         self.dstream_loaders.append(loader)

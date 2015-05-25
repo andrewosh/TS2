@@ -45,5 +45,5 @@ class DStreamLoader(Thread):
             keys = sorted(bytes_rdd.keys().collect())
             self.last_idx = self._get_last_complete_key(keys)
             self.last_idx = max(bytes_rdd.keys().collect())
-            self._queue.put(bytes_rdd)
+            self._queue.append(bytes_rdd)
             time.sleep(self._poll_time)
