@@ -34,8 +34,7 @@ class FinishedFileNotifier(RegexMatchingEventHandler, Thread):
         # File completion notifications are inserted into this queue, which is read by the DB manager thread
         self._queue = Queue()
 
-        self._observer = Observer()
-        self._observer.schedule(self, self.root, recursive=True)
+        self._observer = None
 
         self._stopped = False
 
@@ -71,6 +70,8 @@ class FinishedFileNotifier(RegexMatchingEventHandler, Thread):
         return notifications
 
     def run(self):
+        self._observer = Observer()
+        self._observer.schedule(self, self.root, recursive=True)
         debugLog("Starting file observer on: %s" % self.root)
         self._observer.start()
         while not self._stopped:
