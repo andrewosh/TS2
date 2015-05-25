@@ -44,7 +44,8 @@ class FinishedFileNotifier(Thread):
         self.mod_time = settings.MOD_TIME
         self.root = root
         self.subscribers = subscribers
-        self.name_parser = name_parser
+        # For now, only support one regex
+        self.name_parser = name_parser[0]
         self.regexes = ['.*']
 
         # The event dictionary stores last modification times for all files under root (recursively)
