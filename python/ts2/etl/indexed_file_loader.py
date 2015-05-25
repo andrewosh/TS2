@@ -45,6 +45,7 @@ class FinishedFileNotifier(RegexMatchingEventHandler, Thread):
         self.root = root
         self.subscribers = subscribers
         self.name_parser = name_parser
+        self.regexes = regexes
 
         # The event dictionary stores last modification times for all files under root (recursively)
         # A dict is better than an implementation that involves sorting because the sorting would have to take place
