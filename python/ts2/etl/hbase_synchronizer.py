@@ -29,7 +29,7 @@ class HBaseSynchronizer(Synchronizer):
         """
         for (root, idx, data)  in data_list:
             data_dict = {
-                settings.BASE_COL_FAM + ':data': data
+                settings.BASE_COL_FAM + ':' + root: data
             }
             debugLog("Inserting %s into %s" % (data_dict.keys()[0], str(idx)))
             self.table.put(idx, data_dict)
