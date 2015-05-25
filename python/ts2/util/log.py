@@ -28,12 +28,15 @@ class Logger(object):
         """
         pass
 
-def lock_method(func):
-    def func(*args, **kwargs):
+def lock_method(log_func):
+    def log(msg):
         Logger.log_lock.acquire()
-        func(args, kwargs)
+        try:
+            log_func(msg)
+        except Exception:
+            pass
         Logger.log_lock.release()
-    return func
+    return log
 
 @lock_method
 def debugLog(msg):
