@@ -40,7 +40,7 @@ class HBaseManager(Synchronizer):
         :return:
         """
         key_str = str(key)
-        return ('0' * ((log(settings.MAX_KEY, 10) + 1) - len(key))) + key_str
+        return ('0' * ((int(log(settings.MAX_KEY, 10)) + 1) - len(key))) + key_str
 
     def _get_qualified_name(self, col):
         return ':'.join([settings.BASE_COL_FAM, settings.BASE_COL_QUALIFIER, col])
