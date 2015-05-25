@@ -63,6 +63,7 @@ class FinishedFileNotifier(Thread):
         self._stopped = True
         self._observer.stop()
 
+
     def _generate_notifications(self):
         cur_time = time.time()
         for (file, t) in self._event_dict.items():
@@ -82,7 +83,7 @@ class FinishedFileNotifier(Thread):
 
     def run(self):
         self._observer = Observer()
-        self._observer.schedule(FinishedFileNotifier.FileModHandler(self.regexes, self._event_dict),
+        self._observer.schedule(self.root, FinishedFileNotifier.FileModHandler(self.regexes, self._event_dict),
                                 self.root, recursive=True)
         debugLog("Starting file observer on: %s with regexes %s" % (self.root, self.regexes))
         self._observer.start()
