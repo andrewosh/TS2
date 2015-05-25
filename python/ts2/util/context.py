@@ -41,7 +41,7 @@ class ThunderStreamingContext(object):
         for loader in self.dstream_loaders:
             loader.stop()
 
-    def loadBytes(self, datasetId=DATA_KEY, minTime=0, maxTime=None):
+    def loadBytes(self, datasetId=DATA_KEY, minTime=0, maxTime=10):
         def _lb(first, last):
             keyed_byte_arrs = self._db_manager.get_rows(datasetId, minTime, maxTime)
             # TODO Convert the byte array into N chunks of bytes

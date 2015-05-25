@@ -65,7 +65,6 @@ class FinishedFileNotifier(Thread):
         self._stopped = True
         self._observer.stop()
 
-
     def _generate_notifications(self):
         cur_time = time.time()
         for (file, t) in self._event_dict.items():

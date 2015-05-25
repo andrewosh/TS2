@@ -2,6 +2,7 @@ from ts2.etl.indexed_file_loader import Synchronizer
 import happybase
 import ts2.settings as settings
 from ts2.util.log import debugLog
+from math import log
 
 class HBaseManager(Synchronizer):
     """
@@ -31,6 +32,16 @@ class HBaseManager(Synchronizer):
         self.conn.close()
         self.table = None
 
+    def _get_padded_key(self, key):
+        """
+        Since keys are stored lexicographically, they must be zero-padded based on a maximum key value
+
+        :param key:
+        :return:
+        """
+        key_str = str(key)
+        return ('0' * ((log(settings.MAX_KEY, 10) + 1) - len(key))) + key_str
+
     def _get_qualified_name(self, col):
         return ':'.join([settings.BASE_COL_FAM, settings.BASE_COL_QUALIFIER, col])
 
@@ -48,7 +59,7 @@ class HBaseManager(Synchronizer):
                 ':'.join([settings.BASE_COL_FAM, settings.BASE_COL_QUALIFIER, id]): data
             }
             debugLog("Inserting %s into %s" % (data_dict.keys()[0], str(idx)))
-            self.table.put(idx, data_dict)
+            self.table.put(self._get_padded_key(idx), data_dict)
 
     def get_all_rows(self, id):
         """
@@ -67,8 +78,10 @@ class HBaseManager(Synchronizer):
         :param last: row value in the range (first, len(dataset)), or None for last index
         :return: a byte array
         """
-        rows = self.table.scan(row_start=str(first), row_stop=str(last), filter=self.scan_filter)
+        rows = self.table.scan(row_start=self._get_padded_key(first), row_stop=self._get_padded_key(last),
+                               filter=self.scan_filter)
         if len(rows) != (last - first):
             # Don't return a set of rows that don't contain a complete set of synchronized data
             return None
-        return map(lambda (row_key, row_data): (row_key, row_data[self._get_qualified_name(id)]))
+        # Remove the zero padding and extract the dataset's column
+        return map(lambda (row_key, row_data): (int(row_key), row_data[self._get_qualified_name(id)]))
