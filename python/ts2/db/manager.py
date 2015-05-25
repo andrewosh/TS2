@@ -13,8 +13,11 @@ class HBaseManager(Synchronizer):
     def initialize(self):
         self.conn = happybase.Connection(settings.HBASE_HOST)
         if settings.HBASE_TABLE not in set(self.conn.tables()):
-            self.conn.create_table(settings.HBASE_TABLE, settings.HBASE_FAMILIES)
-
+            try:
+                self.conn.create_table(settings.HBASE_TABLE, settings.HBASE_FAMILIES)
+            except IOError:
+                # TODO fix the race condition in table creation
+                pass
         self.table = self.conn.table(settings.HBASE_TABLE)
 
         # The base columns are set later by set_sequence_names
