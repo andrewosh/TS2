@@ -23,7 +23,7 @@ class Copier(Thread):
                 fs.append(os.path.join(root, f))
         for f in sorted(fs):
             shutil.copy(f, dst)
-            time.sleep(delay)
+            time.sleep(self.delay)
 
     def start(self):
         for src, dst in self.dirs:
