@@ -1,6 +1,7 @@
+#!/bin/python
+
 import os
 import sys
-
 import ts2
 
 def getSparkHome():
@@ -13,8 +14,6 @@ def getSparkHome():
 
 def main():
     SPARK_HOME = getSparkHome()
-
-    childArgs = transformArguments(sys.argv)
 
     sparkSubmit = os.path.join(SPARK_HOME, 'bin', 'pyspark')
 
