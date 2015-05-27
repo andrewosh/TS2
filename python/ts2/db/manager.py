@@ -57,7 +57,7 @@ class HBaseManager(Synchronizer):
         :param data_list:
         :return:
         """
-        for (id, idx, data)  in data_list:
+        for (id, idx, data) in data_list:
             data_dict = {
                 ':'.join([settings.BASE_COL_FAM, settings.BASE_COL_QUALIFIER, id]): data
             }
