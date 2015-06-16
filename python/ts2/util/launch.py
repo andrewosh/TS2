@@ -34,6 +34,7 @@ print "+"
 from ts2.etl.feeder import Feeder
 from ts2.util.context import ThunderStreamingContext
 from ts2.db.manager import HBaseManager
+from ts2 import __version__
 import os
 
 etl_conf = os.environ['ETL_CONFIG']
@@ -50,7 +51,7 @@ print(colored('    IIIIIIIIIIIIIIIIII   IIIIIIIIIII          ', 'red'))
 print(colored('      IIIII               IIIIIIIIIII         ', 'red'))
 print(colored('     IIIII                  IIIIIIIIIIII      ', 'red'))
 print(colored('     IIIII                  IIIIIIIIIII       ', 'red') + 'Thunder Streaming')
-print(colored('      IIIIIIIII            IIIIIIIIII         ', 'red') + 'version ' + str(0.01))
+print(colored('      IIIIIIIII            IIIIIIIIII         ', 'red') + 'version ' + ts2.__version__)
 print(colored('       IIIIIII          IIIIIIIII             ', 'red'))
 print('')
 
