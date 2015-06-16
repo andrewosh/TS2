@@ -16,7 +16,7 @@ class HBaseManager(Synchronizer):
             try:
                 self.conn.create_table(settings.HBASE_TABLE, settings.HBASE_FAMILIES)
             except IOError:
-                # TODO fix the race condition in table creation
+                # TODO fix the race condition in table creation (doesn't really break anything)
                 pass
         self.table = self.conn.table(settings.HBASE_TABLE)
 
@@ -28,8 +28,9 @@ class HBaseManager(Synchronizer):
 
     def set_sequence_names(self, names):
         self.base_cols = names
-        self.scan_filter = ' AND '.join(map(lambda name: 'new SingleColumnValueFilter("%s", "%s", CompareOp.EQUAL, "%s")\.setFilterIfMissing(true)'\
-                                            % (settings.BASE_COL_FAM, settings.BASE_COL_QUALIFIER, name), names))
+        # The > 0 check should alwasy return true if the columns exist
+        self.scan_filter = ' AND '.join('(new SingleColumnValueFilter( "%s:%s", CompareOp.GREATER, "0" )\.setFilterIfMissing(true))'\
+                                            % (settings.BASE_COL_FAM, name))
 
     def terminate(self):
         self.conn.close()
@@ -46,7 +47,7 @@ class HBaseManager(Synchronizer):
         return ('0' * ((int(log(settings.MAX_KEY, 10)) + 1) - len(key_str))) + key_str
 
     def _get_qualified_name(self, col):
-        return ':'.join([settings.BASE_COL_FAM, settings.BASE_COL_QUALIFIER, col])
+        return ':'.join([settings.BASE_COL_FAM, col])
 
     def synchronize(self, sequence_id, data_list):
         """
@@ -59,7 +60,7 @@ class HBaseManager(Synchronizer):
         """
         for (id, idx, data) in data_list:
             data_dict = {
-                ':'.join([settings.BASE_COL_FAM, settings.BASE_COL_QUALIFIER, id]): data
+                ':'.join([settings.BASE_COL_FAM, id]): data
             }
             debugLog("Inserting %s into %s" % (data_dict.keys()[0], str(idx)))
             self.table.put(self._get_padded_key(idx), data_dict)

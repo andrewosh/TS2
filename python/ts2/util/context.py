@@ -1,8 +1,12 @@
 from ts2.db.manager import HBaseManager
 from ts2.data.dstream_loader import DStreamLoader
 from ts2.util.utils import grouper
-from Queue import Queue
+from ts2.etl.feeder import Feeder
 from pyspark.streaming import StreamingContext
+
+from ts2.util.log import warningLog
+
+from py4j.java_gateway import java_import
 
 class ThunderStreamingContext(object):
     """
@@ -13,16 +17,24 @@ class ThunderStreamingContext(object):
     DATA_KEY = 'data'
     REGRESSOR_KEY = 'regressor'
 
-    def __init__(self, tsc, sc, feeder, batch_time=5):
+    def __init__(self, tsc, sc, batch_time=5):
         self._tsc = tsc
         self._sc = sc
-        self._feeder = feeder
         self.ssc = StreamingContext(sc, batch_time)
 
         self.rows_per_partition = 5
 
         self.dstream_loaders = []
         self._poll_time = 3
+
+        self._feeder = None
+        self._hbase_manager = None
+
+    def loadConfig(self, filename):
+        manager = HBaseManager()
+        feeder = Feeder(filename, manager)
+        self._hbase_manager = manager
+        self._feeder = feeder
 
     def set_partition_size(self, rows_per_partition):
         """
@@ -34,6 +46,8 @@ class ThunderStreamingContext(object):
         self.rows_per_partition = rows_per_partition
 
     def start(self):
+        if not self._feeder:
+            warningLog("Cannot start until a streaming configuration file has been loaded.")
         self._feeder.start()
 
     def stop(self):
@@ -59,8 +73,24 @@ class ThunderStreamingContext(object):
     def loadSeries(self, datasetId=DATA_KEY, minTime=0, maxTime=-1):
         pass
 
+    def loadBytesDStream(self, datasetId=DATA_KEY):
+        java_import(self._sc._jvm, "thunder_streaming.receivers.*")
+        req_cols = self._feeder.
+        receiver = self._sc._jvm.HBaseReceiver()
+        return receiver
+
+    def loadSeriesDStream(self, datasetId=DATA_KEY):
+        pass
+
+    def loadImagesDStream(self, datasetId=DATA_KEY):
+        pass
+
+    # TODO: Remove the following obsolete methods
+
+    """
     def getBytesDStream(self, datasetId=DATA_KEY):
         q = []
+
         dstream = self.ssc.queueStream(q)
         loader = DStreamLoader(self, datasetId, q, self._poll_time)
         self.dstream_loaders.append(loader)
@@ -73,5 +103,6 @@ class ThunderStreamingContext(object):
 
     def getSeriesDStream(self, datasetId=DATA_KEY):
         pass
+    """
 
     # TODO: Load regressors

@@ -4,6 +4,14 @@ import os
 import sys
 import ts2
 
+def getCommaSeparatedOptionsList(childOptionsFlag, commaSeparated, additionalDefault=None):
+    lst = commaSeparated.split(",") if commaSeparated else []
+    if additionalDefault:
+        lst.append(additionalDefault)
+    if lst:
+        return [childOptionsFlag, ",".join(lst)]
+    return []
+
 def getSparkHome():
     sparkhome = os.getenv("SPARK_HOME")
     if sparkhome is None:
@@ -11,6 +19,13 @@ def getSparkHome():
     if not os.path.exists(sparkhome):
         raise Exception("No Spark installation at %s, check that SPARK_HOME is correct" % sparkhome)
     return sparkhome
+
+def findThunderStreamingJar():
+    thunderdir = os.path.dirname(os.path.realpath(thunder.__file__))
+    thunderJar = os.path.join(thunderdir, 'lib', 'thunder_streaming_2.10-'+str(thunder.__version__)+'.jar')
+    if not os.path.isfile(thunderJar):
+        raise Exception("Thunder Streaming jar file not found at '%s'. Does Thunder need to be rebuilt?")
+    return thunderJar
 
 def main():
     SPARK_HOME = getSparkHome()
@@ -23,7 +38,13 @@ def main():
     # add ETL configuration
     os.environ['ETL_CONFIG'] = sys.argv[1]
 
-    os.execv(sparkSubmit, [''])
+    thunderStreamingJar = findThunderStreamingJar()
+    jars = getCommaSeparatedOptionsList("--jars", opts.get("jars", []), thunderStreamingJar)
+
+    retvals = []
+    retvals.extend(jars)
+
+    os.execv(sparkSubmit, retvals)
 
 if __name__ == "__main__":
     main()

@@ -3,6 +3,7 @@ Start Thunder component
 """
 
 import thunder
+
 from thunder.utils.context import ThunderContext
 
 try:
@@ -39,7 +40,7 @@ etl_conf = os.environ['ETL_CONFIG']
 db_manager = HBaseManager()
 f = Feeder(etl_conf, db_manager)
 
-tssc = ThunderStreamingContext(tsc, sc, f)
+tssc = ThunderStreamingContext(tsc, sc)
 
 print('')
 print(colored('       IIIII                       IIIIIII    ', 'red'))
