@@ -21,11 +21,11 @@ def getSparkHome():
     return sparkhome
 
 def findThunderStreamingJar():
-    thunderdir = os.path.dirname(os.path.realpath(thunder.__file__))
-    thunderJar = os.path.join(thunderdir, 'lib', 'thunder_streaming_2.10-'+str(thunder.__version__)+'.jar')
-    if not os.path.isfile(thunderJar):
+    thunderStreamingDir = os.path.dirname(os.path.realpath(ts2.__file__))
+    thunderStreamingJar = os.path.join(thunderdir, 'lib', 'thunder_streaming_2.10-'+str(ts2.__version__)+'.jar')
+    if not os.path.isfile(thunderStreamingJar):
         raise Exception("Thunder Streaming jar file not found at '%s'. Does Thunder need to be rebuilt?")
-    return thunderJar
+    return thunderStreamingJar
 
 def main():
     SPARK_HOME = getSparkHome()
