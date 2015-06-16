@@ -4,14 +4,6 @@ import os
 import sys
 import ts2
 
-def getCommaSeparatedOptionsList(childOptionsFlag, commaSeparated, additionalDefault=None):
-    lst = commaSeparated.split(",") if commaSeparated else []
-    if additionalDefault:
-        lst.append(additionalDefault)
-    if lst:
-        return [childOptionsFlag, ",".join(lst)]
-    return []
-
 def getSparkHome():
     sparkhome = os.getenv("SPARK_HOME")
     if sparkhome is None:
@@ -39,7 +31,7 @@ def main():
     os.environ['ETL_CONFIG'] = sys.argv[1]
 
     thunderStreamingJar = findThunderStreamingJar()
-    jars = getCommaSeparatedOptionsList("--jars", opts.get("jars", []), thunderStreamingJar)
+    jars = ['--jars', thunderStreamingJar]
 
     retvals = []
     retvals.extend(jars)
