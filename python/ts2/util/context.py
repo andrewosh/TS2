@@ -75,8 +75,8 @@ class ThunderStreamingContext(object):
 
     def loadBytesDStream(self, datasetId=DATA_KEY):
         java_import(self._sc._jvm, "thunder_streaming.receivers.*")
-        req_cols = self._feeder.
-        receiver = self._sc._jvm.HBaseReceiver()
+        feeder_conf = self._feeder.conf
+        receiver = self._sc._jvm.HBaseReceiver(feeder_conf.)
         return receiver
 
     def loadSeriesDStream(self, datasetId=DATA_KEY):

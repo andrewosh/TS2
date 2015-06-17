@@ -92,6 +92,16 @@ class FinishedFileNotifier(Thread):
             self._generate_notifications()
 
 
+class DataSequence(object):
+    """
+    Represents a single dataset in the ETLConfiguration, with all its associated parameters.
+    """
+    def __init__(self, id, regexes, name_parser):
+        self.id = id
+        self.regexes = regexes
+        self.name_parser = name_parser
+
+
 class ETLConfiguration(object):
     """
     An ETLConfiguration dictates how files being written into a set of directories should be loaded and inserted
@@ -114,12 +124,14 @@ class ETLConfiguration(object):
         :param name_parsers: A regex containing a match group named 'name', which after a file match will contain the
             time index.
         """
-        self.config[dir] = (id, regexes, name_parser)
+        data_sequence = DataSequence(id, regexes, name_parser)
+        self.config[dir] = DataSequence
 
-    def get_configs(self):
-        for dir in self.config:
-            (id, regexes, name_parser) = self.config[dir]
-            yield (dir, id, regexes, name_parser)
+    def get_sequence_names(self):
+        return [sequence.id for sequence in self.config.values()]
+
+    def get_sequences(self):
+        return self.config.items()
 
     @staticmethod
     def get_time_index(fname, name_parser):
@@ -164,11 +176,13 @@ class FileLoadManager(Thread):
 
         self.synchronizer = synchronizer
 
-        def make_notifier(dir, id, regexes, name_parser):
-            return FinishedFileNotifier(dir, id, [self], regexes, name_parser)
         self._notifiers = []
-        for (dir, id, regexes, name_parser) in etl_conf.get_configs():
-            self._notifiers.append(make_notifier(dir, id, regexes, name_parser))
+        for (dir, sequence) in etl_conf.get_sequences():
+            id = sequence.id
+            regexes = sequence.regexes
+            name_parser = sequence.name_parser
+            notifier = FinishedFileNotifier(dir, id, [self], regexes, name_parser)
+            self._notifiers.append(notifier)
 
         self._stopped = False
 

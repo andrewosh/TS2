@@ -9,8 +9,11 @@ class Feeder(object):
     def __init__(self, conf_file, db_manager):
         self.conf_file = conf_file
         self.db_manager =  db_manager
+        self.conf = ETLConfiguration.load_from_json(self.conf_file)
+
+        # Ensure that the database manager knows which columns to read
+        self.db_manager.set_sequence_names(self.conf.get_sequence_names())
 
     def start(self):
-        conf = ETLConfiguration.load_from_json(self.conf_file)
-        flm = FileLoadManager(conf, self.db_manager)
+        flm = FileLoadManager(self.conf, self.db_manager)
         flm.start()
