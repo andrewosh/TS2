@@ -6,6 +6,8 @@ from pyspark.streaming import StreamingContext
 
 from ts2.util.log import warningLog
 
+import ts2.settings as settings
+
 from py4j.java_gateway import java_import
 
 class ThunderStreamingContext(object):
@@ -26,6 +28,7 @@ class ThunderStreamingContext(object):
 
         self.dstream_loaders = []
         self._poll_time = 3
+        self.batch_time = batch_time
 
         self._feeder = None
         self._hbase_manager = None
@@ -76,7 +79,13 @@ class ThunderStreamingContext(object):
     def loadBytesDStream(self, datasetId=DATA_KEY):
         java_import(self._sc._jvm, "thunder_streaming.receivers.*")
         feeder_conf = self._feeder.conf
-        receiver = self._sc._jvm.HBaseReceiver(feeder_conf.)
+        receiver = self._sc._jvm.HBaseReceiver(
+            feeder_conf.get_sequence_names(),
+            settings.BASE_COL_FAM,
+            datasetId,
+            settings.MAX_KEY,
+            self.batch_time
+        )
         return receiver
 
     def loadSeriesDStream(self, datasetId=DATA_KEY):
