@@ -29,8 +29,8 @@ class HBaseManager(Synchronizer):
     def set_sequence_names(self, names):
         self.base_cols = names
         # The > 0 check should always return true if the columns exist
-        self.scan_filter = ' AND '.join('(new SingleColumnValueFilter( "%s:%s", CompareOp.GREATER, "0" )\.setFilterIfMissing(true))'\
-                                            % (settings.BASE_COL_FAM, name))
+        self.scan_filter = ' AND '.join(['(new SingleColumnValueFilter( "%s:%s", CompareOp.GREATER, "0" )\.setFilterIfMissing(true))'\
+                                            % (settings.BASE_COL_FAM, name) for name in names])
 
     def terminate(self):
         self.conn.close()
