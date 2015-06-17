@@ -34,7 +34,7 @@ print "+"
 from ts2.etl.feeder import Feeder
 from ts2.util.context import ThunderStreamingContext
 from ts2.db.manager import HBaseManager
-from ts2 import __version__
+import ts2
 import os
 
 etl_conf = os.environ['ETL_CONFIG']
