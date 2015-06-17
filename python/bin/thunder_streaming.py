@@ -32,9 +32,11 @@ def main():
 
     thunderStreamingJar = findThunderStreamingJar()
     jars = ['--jars', thunderStreamingJar]
+    driver_classpath = ['--driver-class-path', thunderStreamingJar]
 
     retvals = []
     retvals.extend(jars)
+    retvals.extend(driver_classpath)
 
     os.execv(sparkSubmit, retvals)
 
