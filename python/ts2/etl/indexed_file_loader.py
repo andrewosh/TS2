@@ -125,7 +125,7 @@ class ETLConfiguration(object):
             time index.
         """
         data_sequence = DataSequence(id, regexes, name_parser)
-        self.config[dir] = DataSequence
+        self.config[dir] = data_sequence
 
     def get_sequence_names(self):
         return [sequence.id for sequence in self.config.values()]
