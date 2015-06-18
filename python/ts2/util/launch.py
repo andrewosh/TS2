@@ -31,15 +31,8 @@ print "+"
  Start streaming component
 """
 
-from ts2.etl.feeder import Feeder
 from ts2.util.context import ThunderStreamingContext
-from ts2.db.manager import HBaseManager
 import ts2
-import os
-
-etl_conf = os.environ['ETL_CONFIG']
-db_manager = HBaseManager()
-f = Feeder(etl_conf, db_manager)
 
 tssc = ThunderStreamingContext(tsc, sc)
 

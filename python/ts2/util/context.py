@@ -3,6 +3,7 @@ from ts2.data.dstream_loader import DStreamLoader
 from ts2.util.utils import grouper
 from ts2.etl.feeder import Feeder
 from pyspark.streaming import StreamingContext
+import os
 
 from ts2.util.log import warningLog
 
@@ -33,7 +34,17 @@ class ThunderStreamingContext(object):
         self._feeder = None
         self._hbase_manager = None
 
-    def loadConfig(self, filename):
+    def loadConfig(self, filename=None):
+        """
+        :param filename:  The name of the ETL configuration file to load (by default, it will use the file passed in
+        as the first argument to thunder_streaming, which is stored in the ETL_CONFIG environment variable
+        :return:
+        """
+        if not filename:
+            filename = os.environ.get('ETL_CONFIG')
+        if not filename:
+            warningLog("Could not load a configuration file (did you pass one in as an argument to thunder_streaming?).")
+            return
         manager = HBaseManager()
         feeder = Feeder(filename, manager)
         self._hbase_manager = manager
