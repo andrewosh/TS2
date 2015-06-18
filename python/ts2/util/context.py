@@ -88,10 +88,12 @@ class ThunderStreamingContext(object):
         pass
 
     def loadBytesDStream(self, datasetId=DATA_KEY):
-        java_import(self._sc._jvm, "thunder_streaming.receivers.*")
+        from py4j.java_collections import ListConverter
+        jvm = self._sc._jvm
+        java_import(jvm, "thunder_streaming.receivers.*")
         feeder_conf = self._feeder.conf
-        receiver = self._sc._jvm.HBaseReceiver(
-            feeder_conf.get_sequence_names(),
+        receiver = jvm.HBaseReceiver(
+            ListConverter().convert(feeder_conf.get_sequence_names(), jvm._gateway_client),
             settings.BASE_COL_FAM,
             datasetId,
             settings.MAX_KEY,
