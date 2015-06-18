@@ -5,6 +5,7 @@ import java.util
 import org.apache.hadoop.hbase.filter.CompareFilter.CompareOp
 import org.apache.hadoop.hbase.util.Bytes
 import org.apache.spark.storage.StorageLevel
+import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.receiver.Receiver
 import org.apache.hadoop.hbase.HBaseConfiguration
 import org.apache.hadoop.hbase.client.{HBaseAdmin, Scan, HTable}
@@ -12,6 +13,8 @@ import org.apache.hadoop.hbase.filter.{FilterList, SingleColumnValueFilter}
 import scala.util.control.Breaks._
 
 import scala.collection.JavaConversions._
+
+import org.apache.spark.streaming.dstream.PluggableInputDStream
 
 class HBaseReceiver(reqCols: util.ArrayList[String],
                     family: String,
@@ -84,5 +87,16 @@ class HBaseReceiver(reqCols: util.ArrayList[String],
    */
   def getPaddedKey(keyStr: String): String = {
     ('0' * (math.log10(maxKey) + 1).toInt - keyStr.length) + keyStr
+  }
+}
+
+object HBaseReceiver {
+  def apply(sc: StreamingContext,
+            reqCols: util.ArrayList[String],
+            family: String,
+            dataSet: String,
+            maxKey: Long,
+            period: Int): PluggableInputDStream = {
+    PluggableInputDStream(sc, new HBaseReceiver(reqCols, family, dataSet, maxKey, period))
   }
 }

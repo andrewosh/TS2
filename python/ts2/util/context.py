@@ -99,7 +99,7 @@ class ThunderStreamingContext(object):
             settings.MAX_KEY,
             self.batch_time
         )
-        return receiver
+        return DStream(receiver
 
     def loadSeriesDStream(self, datasetId=DATA_KEY):
         pass
