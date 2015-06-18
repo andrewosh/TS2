@@ -11,6 +11,7 @@ import org.apache.hadoop.hbase.client.{HBaseAdmin, Scan, HTable}
 import org.apache.hadoop.hbase.filter.{FilterList, SingleColumnValueFilter}
 import scala.util.control.Breaks._
 
+import scala.collection.JavaConversions._
 
 class HBaseReceiver(reqCols: util.ArrayList[String],
                     family: String,
@@ -26,7 +27,7 @@ class HBaseReceiver(reqCols: util.ArrayList[String],
   val table = new HTable(conf, DATA_TABLE)
 
   var filterList = new FilterList(FilterList.Operator.MUST_PASS_ALL)
-  val filters = reqCols.map{ col =>
+  val filters = reqCols.toList.map{ col =>
     val newFilter = new SingleColumnValueFilter(Bytes.toBytes(family), Bytes.toBytes(col),
                              CompareOp.GREATER, Bytes.toBytes("0"))
     newFilter.setFilterIfMissing(true)
