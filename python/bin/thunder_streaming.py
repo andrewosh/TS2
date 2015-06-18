@@ -4,6 +4,9 @@ import os
 import sys
 import ts2
 
+HBASE_VERSION = '0.98.7-hadoop1'
+JAR_ROOT = '/home/andrew/.ivy2/cache/org.apache.hbase/'
+
 def getSparkHome():
     sparkhome = os.getenv("SPARK_HOME")
     if sparkhome is None:
@@ -14,10 +17,24 @@ def getSparkHome():
 
 def findThunderStreamingJar():
     thunderStreamingDir = os.path.dirname(os.path.realpath(ts2.__file__))
-    thunderStreamingJar = os.path.join(thunderStreamingDir, 'lib', 'thunder_streaming_2.10-'+str(ts2.__version__)+'.jar')
+    thunderStreamingJar = os.path.join(thunderStreamingDir, 'lib', 'thunder_streaming-assembly-'+str(ts2.__version__)+'.jar')
     if not os.path.isfile(thunderStreamingJar):
         raise Exception("Thunder Streaming jar file not found at '%s'. Does Thunder need to be rebuilt?")
-    return thunderStreamingJar
+    return [thunderStreamingJar]
+
+def findHBaseJars(): 
+    """
+    For now, assume that all the HBase jars are in the Ivy cache (meaning thunder_streaming was built on this 
+    machine).
+    """
+    names = ['hbase', 'hbase-common', 'hbase-protocol', 'hbase-server', 'hbase-client', 'hbase-annotations', 'hbase-prefix-tree']
+    version = HBASE_VERSION
+    return [os.path.join(JAR_ROOT, name, 'jars', name + '-' + version + '.jar') for name in names]
+
+def findOtherJars(): 
+    return ['/home/andrew/.ivy2/cache/com.google.protobuf/protobuf-java/bundles/protobuf-java-2.5.0.jar',
+            '/home/andrew/.ivy2/cache/org.cloudera.htrace/htrace-core/jars/htrace-core-2.04.jar',
+    ]
 
 def main():
     SPARK_HOME = getSparkHome()
@@ -31,12 +48,20 @@ def main():
     os.environ['ETL_CONFIG'] = sys.argv[1]
 
     thunderStreamingJar = findThunderStreamingJar()
-    jars = ['--jars', thunderStreamingJar]
-    driver_classpath = ['--driver-class-path', thunderStreamingJar]
+    #hbaseJars = findHBaseJars()
+    #otherJars = findOtherJars()
+	
+    #jarList = thunderStreamingJar + hbaseJars + otherJars
+    jarList = thunderStreamingJar
+
+    jars = ['--jars', ','.join(jarList)]
+    driver_classpath = ['--driver-class-path', ':'.join(jarList)]
 
     retvals = []
     retvals.extend(jars)
     retvals.extend(driver_classpath)
+
+    print "retvals: %s" % str(retvals) 
 
     os.execv(sparkSubmit, retvals)
 
