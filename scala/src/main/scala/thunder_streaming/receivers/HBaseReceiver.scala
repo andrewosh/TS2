@@ -6,6 +6,7 @@ import org.apache.hadoop.hbase.filter.CompareFilter.CompareOp
 import org.apache.hadoop.hbase.util.Bytes
 import org.apache.spark.storage.StorageLevel
 import org.apache.spark.streaming.StreamingContext
+import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.receiver.Receiver
 import org.apache.hadoop.hbase.HBaseConfiguration
 import org.apache.hadoop.hbase.client.{HBaseAdmin, Scan, HTable}
@@ -14,14 +15,13 @@ import scala.util.control.Breaks._
 
 import scala.collection.JavaConversions._
 
-import org.apache.spark.streaming.dstream.PluggableInputDStream
-
 class HBaseReceiver(reqCols: util.ArrayList[String],
                     family: String,
                     dataSet: String,
                     maxKey: Long,
                     period: Int)
   extends Receiver[(String, Array[Byte])](storageLevel=StorageLevel.MEMORY_AND_DISK) {
+
 
   val DATA_TABLE = "data"
 
@@ -91,12 +91,12 @@ class HBaseReceiver(reqCols: util.ArrayList[String],
 }
 
 object HBaseReceiver {
-  def apply(sc: StreamingContext,
+  def apply(ssc: StreamingContext,
             reqCols: util.ArrayList[String],
             family: String,
             dataSet: String,
             maxKey: Long,
-            period: Int): PluggableInputDStream = {
-    PluggableInputDStream(sc, new HBaseReceiver(reqCols, family, dataSet, maxKey, period))
+            period: Int): DStream = {
+    ssc.receiverStream(new HBaseReceiver(reqCols, family, dataSet, maxKey, period))
   }
 }
