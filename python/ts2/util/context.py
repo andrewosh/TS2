@@ -95,7 +95,6 @@ class ThunderStreamingContext(object):
         java_import(jvm, "thunder_streaming.receivers.*")
         feeder_conf = self._feeder.conf
         return DStream(self.ssc._jssc.receiverStream(jvm.HBaseReceiver(
-            self.ssc._jssc,
             ListConverter().convert(feeder_conf.get_sequence_names(), jvm._gateway_client),
             settings.BASE_COL_FAM,
             datasetId,
