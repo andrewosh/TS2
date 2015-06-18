@@ -100,8 +100,8 @@ class ThunderStreamingContext(object):
                 settings.BASE_COL_FAM,
                 datasetId,
                 settings.MAX_KEY,
-                self.batch_time),
-            self.ssc, NoOpSerializer()))
+                self.batch_time)),
+            self.ssc, NoOpSerializer())
 
     def loadSeriesDStream(self, datasetId=DATA_KEY):
         pass
