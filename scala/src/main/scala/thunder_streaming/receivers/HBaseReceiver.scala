@@ -1,5 +1,7 @@
 package thunder_streaming.receivers
 
+import java.util
+
 import org.apache.hadoop.hbase.filter.CompareFilter.CompareOp
 import org.apache.hadoop.hbase.util.Bytes
 import org.apache.spark.storage.StorageLevel
@@ -10,7 +12,7 @@ import org.apache.hadoop.hbase.filter.{FilterList, SingleColumnValueFilter}
 import scala.util.control.Breaks._
 
 
-class HBaseReceiver(reqCols: List[String],
+class HBaseReceiver(reqCols: util.ArrayList[String],
                     family: String,
                     dataSet: String,
                     maxKey: Long,
