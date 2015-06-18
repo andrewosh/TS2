@@ -92,14 +92,13 @@ class ThunderStreamingContext(object):
         jvm = self._sc._jvm
         java_import(jvm, "thunder_streaming.receivers.*")
         feeder_conf = self._feeder.conf
-        receiver = jvm.HBaseReceiver(
+        return jvm.HBaseReceiver(
             ListConverter().convert(feeder_conf.get_sequence_names(), jvm._gateway_client),
             settings.BASE_COL_FAM,
             datasetId,
             settings.MAX_KEY,
             self.batch_time
         )
-        return DStream(receiver
 
     def loadSeriesDStream(self, datasetId=DATA_KEY):
         pass
