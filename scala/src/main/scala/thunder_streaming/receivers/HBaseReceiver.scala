@@ -96,7 +96,7 @@ object HBaseReceiver {
             family: String,
             dataSet: String,
             maxKey: Long,
-            period: Int): DStream = {
+            period: Int): DStream[(Int, Array[Byte])] = {
     ssc.receiverStream(new HBaseReceiver(reqCols, family, dataSet, maxKey, period))
   }
 }
