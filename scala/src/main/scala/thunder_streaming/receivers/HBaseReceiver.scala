@@ -89,14 +89,3 @@ class HBaseReceiver(reqCols: util.ArrayList[String],
     ('0' * (math.log10(maxKey) + 1).toInt - keyStr.length) + keyStr
   }
 }
-
-object HBaseReceiver {
-  def apply(ssc: StreamingContext,
-            reqCols: util.ArrayList[String],
-            family: String,
-            dataSet: String,
-            maxKey: Long,
-            period: Int): DStream[(String, Array[Byte])] = {
-    ssc.receiverStream(new HBaseReceiver(reqCols, family, dataSet, maxKey, period))
-  }
-}
