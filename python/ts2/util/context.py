@@ -3,6 +3,8 @@ from ts2.data.dstream_loader import DStreamLoader
 from ts2.util.utils import grouper
 from ts2.etl.feeder import Feeder
 from pyspark.streaming import StreamingContext
+from pyspark.streaming.dstream import DStream
+from pyspark.serializers import NoOpSerializer
 import os
 
 from ts2.util.log import warningLog
@@ -92,13 +94,13 @@ class ThunderStreamingContext(object):
         jvm = self._sc._jvm
         java_import(jvm, "thunder_streaming.receivers.*")
         feeder_conf = self._feeder.conf
-        return jvm.HBaseReceiver(
+        return DStream(jvm.HBaseReceiver(
             ListConverter().convert(feeder_conf.get_sequence_names(), jvm._gateway_client),
             settings.BASE_COL_FAM,
             datasetId,
             settings.MAX_KEY,
             self.batch_time
-        )
+        ), self, NoOpSerializer())
 
     def loadSeriesDStream(self, datasetId=DATA_KEY):
         pass
