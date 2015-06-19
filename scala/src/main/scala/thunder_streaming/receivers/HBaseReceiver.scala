@@ -49,7 +49,9 @@ class HBaseReceiver(reqCols: util.ArrayList[String],
 
     var filterList = new FilterList(FilterList.Operator.MUST_PASS_ALL)
     val filters = reqCols.toList.map{ col =>
-      new SingleColumnValueFilter(Bytes.toBytes(family), Bytes.toBytes(col), CompareOp.NO_OP, Bytes.toBytes("0"))
+      val filter = new SingleColumnValueFilter(Bytes.toBytes(family), Bytes.toBytes(col), CompareOp.NO_OP, Bytes.toBytes("0"))
+      filter.setFilterIfMissing(true)
+      filter
     }
     filters.foreach(f => filterList.addFilter(f))
 
