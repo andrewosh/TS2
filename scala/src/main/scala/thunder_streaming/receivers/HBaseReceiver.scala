@@ -25,6 +25,7 @@ class HBaseReceiver(reqCols: util.ArrayList[String],
   extends Receiver[(String, Array[Byte])](storageLevel=StorageLevel.MEMORY_AND_DISK) {
 
   val DATA_TABLE = "data"
+
   var receiverThread: Thread = _
   var stopped: Boolean = false
 
@@ -91,6 +92,7 @@ class HBaseReceiver(reqCols: util.ArrayList[String],
             val cols = res.getValue(Bytes.toBytes(family), Bytes.toBytes(dataSet))
             println("Storing row of length: %d".format(cols.length))
             store((row, cols))
+            res = resultScanner.next()
           }
           Thread.sleep(period * 1000)
         }
