@@ -22,26 +22,7 @@ class HBaseReceiver(reqCols: util.ArrayList[String],
                     period: Int)
   extends Receiver[(String, Array[Byte])](storageLevel=StorageLevel.MEMORY_AND_DISK) {
 
-
   val DATA_TABLE = "data"
-
-  val conf = HBaseConfiguration.create()
-  val admin = new HBaseAdmin(conf)
-  val table = new HTable(conf, DATA_TABLE)
-
-  var filterList = new FilterList(FilterList.Operator.MUST_PASS_ALL)
-  val filters = reqCols.toList.map{ col =>
-    val newFilter = new SingleColumnValueFilter(Bytes.toBytes(family), Bytes.toBytes(col),
-                             CompareOp.GREATER, Bytes.toBytes("0"))
-    newFilter.setFilterIfMissing(true)
-    newFilter
-  }
-  filters.foreach(f => filterList.addFilter(f))
-
-  var batchScan = new Scan().setFilter(filterList)
-
-  // minRow is updated after each batch to reflect the last complete row successfully stored
-  var minRow = 0
 
   /**
    * Launch the HBase reader thread
@@ -59,6 +40,24 @@ class HBaseReceiver(reqCols: util.ArrayList[String],
    * Apply batchScan to 'data' table in HBase and
    */
   def receive(): Unit = {
+    val conf = HBaseConfiguration.create()
+    val admin = new HBaseAdmin(conf)
+    val table = new HTable(conf, DATA_TABLE)
+
+    var filterList = new FilterList(FilterList.Operator.MUST_PASS_ALL)
+    val filters = reqCols.toList.map{ col =>
+      val newFilter = new SingleColumnValueFilter(Bytes.toBytes(family), Bytes.toBytes(col),
+                               CompareOp.GREATER, Bytes.toBytes("0"))
+      newFilter.setFilterIfMissing(true)
+      newFilter
+    }
+    filters.foreach(f => filterList.addFilter(f))
+
+    var batchScan = new Scan().setFilter(filterList)
+
+    // minRow is updated after each batch to reflect the last complete row successfully stored
+    var minRow = 0
+
     while (!isStopped()) {
       batchScan.setStartRow(Bytes.toBytes(getPaddedKey(minRow.toString)))
       val resultScanner = table.getScanner(batchScan)

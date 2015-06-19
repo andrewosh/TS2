@@ -65,10 +65,12 @@ class ThunderStreamingContext(object):
         if not self._feeder:
             warningLog("Cannot start until a streaming configuration file has been loaded.")
         self._feeder.start()
+        self.ssc.start()
 
     def stop(self):
         for loader in self.dstream_loaders:
             loader.stop()
+        self.ssc.stop()
 
     def loadBytes(self, datasetId=DATA_KEY, minTime=0, maxTime=10):
         def _lb(first, last):
