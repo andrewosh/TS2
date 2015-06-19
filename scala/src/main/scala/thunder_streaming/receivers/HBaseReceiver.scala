@@ -93,6 +93,6 @@ class HBaseReceiver(reqCols: util.ArrayList[String],
    * Pad a Long key with the appropriate number of 0s, considering the maximum key value (maxKey)
    */
   def getPaddedKey(keyStr: String): String = {
-    ('0' * (math.log10(maxKey) + 1).toInt - keyStr.length) + keyStr
+    ("0" * (math.log10(maxKey) + 1).toInt - keyStr.length) + keyStr
   }
 }
