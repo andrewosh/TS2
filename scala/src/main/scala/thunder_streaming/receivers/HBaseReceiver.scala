@@ -76,7 +76,7 @@ class HBaseReceiver(reqCols: util.ArrayList[String],
           println("startRow: %s".format(startRow))
           batchScan.setStartRow(Bytes.toBytes(startRow))
           val resultScanner = table.getScanner(batchScan)
-          val res = resultScanner.next()
+          var res = resultScanner.next()
           while (res != null) {
             val row = Bytes.toString(res.getRow())
             println("Got row: %s".format(row))
