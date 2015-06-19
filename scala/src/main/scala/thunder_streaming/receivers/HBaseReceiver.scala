@@ -23,18 +23,23 @@ class HBaseReceiver(reqCols: util.ArrayList[String],
   extends Receiver[(String, Array[Byte])](storageLevel=StorageLevel.MEMORY_AND_DISK) {
 
   val DATA_TABLE = "data"
+  var receiverThread: Thread = _
+  var stopped: Boolean = false
 
   /**
    * Launch the HBase reader thread
    */
   override def onStart(): Unit = {
     // Start the thread that receives completed rows from the HBase database
-    new Thread("HBase Receiver") {
+    receiverThread = new Thread("HBase Receiver") {
       override def run() { receive() }
-    }.start()
+    }
+    receiverThread.start()
   }
 
-  override def onStop(): Unit = {}
+  override def onStop(): Unit = {
+    stopped = true
+  }
 
   /**
    * Apply batchScan to 'data' table in HBase and
@@ -58,7 +63,7 @@ class HBaseReceiver(reqCols: util.ArrayList[String],
     // minRow is updated after each batch to reflect the last complete row successfully stored
     var minRow = 0
 
-    while (!isStopped()) {
+    while (!stopped) {
       batchScan.setStartRow(Bytes.toBytes(getPaddedKey(minRow.toString)))
       val resultScanner = table.getScanner(batchScan)
       val res = resultScanner.next()
@@ -75,6 +80,7 @@ class HBaseReceiver(reqCols: util.ArrayList[String],
           minRow = rowVal
         }
         val cols = res.getValue(Bytes.toBytes(family), Bytes.toBytes(dataSet))
+        println("Storing row of length: %d".format(cols.length))
         store((row, cols))
       }
       Thread.sleep(period * 1000)
