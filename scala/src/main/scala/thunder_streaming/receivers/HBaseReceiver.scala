@@ -49,7 +49,8 @@ class HBaseReceiver(reqCols: util.ArrayList[String],
 
     var filterList = new FilterList(FilterList.Operator.MUST_PASS_ALL)
     val filters = reqCols.toList.map{ col =>
-      val filter = new SingleColumnValueFilter(Bytes.toBytes(family), Bytes.toBytes(col), CompareOp.NO_OP, Bytes.toBytes("0"))
+      // If the column exists (it's not equal to the null terminator byte), return true
+      val filter = new SingleColumnValueFilter(Bytes.toBytes(family), Bytes.toBytes(col), CompareOp.NOT_EQUAL, Bytes.toBytes('\0'))
       filter.setFilterIfMissing(true)
       filter
     }
