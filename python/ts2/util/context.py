@@ -61,13 +61,15 @@ class ThunderStreamingContext(object):
         """
         self.rows_per_partition = rows_per_partition
 
-    def start(self):
+    def start_feeder(self):
         if not self._feeder:
             warningLog("Cannot start until a streaming configuration file has been loaded.")
         self._feeder.start()
+
+    def start_streaming(self):
         self.ssc.start()
 
-    def stop(self):
+    def stop_streaming(self):
         for loader in self.dstream_loaders:
             loader.stop()
         self.ssc.stop()
