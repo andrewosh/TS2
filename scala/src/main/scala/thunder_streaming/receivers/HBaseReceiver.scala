@@ -87,7 +87,8 @@ class HBaseReceiver(reqCols: util.ArrayList[String],
               break
             }
             if (rowVal > minRow) {
-              minRow = rowVal
+              // The subsequent batches should start on the next row
+              minRow = rowVal + 1
             }
             val cols = res.getValue(Bytes.toBytes(family), Bytes.toBytes(dataSet))
             println("Storing row of length: %d".format(cols.length))
