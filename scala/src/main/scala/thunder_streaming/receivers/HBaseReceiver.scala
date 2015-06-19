@@ -5,12 +5,10 @@ import java.util
 import org.apache.hadoop.hbase.filter.CompareFilter.CompareOp
 import org.apache.hadoop.hbase.util.Bytes
 import org.apache.spark.storage.StorageLevel
-import org.apache.spark.streaming.StreamingContext
-import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.receiver.Receiver
 import org.apache.hadoop.hbase.HBaseConfiguration
 import org.apache.hadoop.hbase.client.{HBaseAdmin, Scan, HTable}
-import org.apache.hadoop.hbase.filter.{FilterList, DependentColumnFilter}
+import org.apache.hadoop.hbase.filter.{SingleColumnValueFilter, FilterList}
 import scala.util.control.Breaks._
 
 import scala.collection.JavaConversions._
@@ -51,7 +49,7 @@ class HBaseReceiver(reqCols: util.ArrayList[String],
 
     var filterList = new FilterList(FilterList.Operator.MUST_PASS_ALL)
     val filters = reqCols.toList.map{ col =>
-      new DependentColumnFilter(Bytes.toBytes(family), Bytes.toBytes(col))
+      new SingleColumnValueFilter(Bytes.toBytes(family), Bytes.toBytes(col), CompareOp.NO_OP, Bytes.toBytes("0"))
     }
     filters.foreach(f => filterList.addFilter(f))
 
