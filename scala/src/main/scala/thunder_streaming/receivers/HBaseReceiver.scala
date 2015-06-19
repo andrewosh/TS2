@@ -71,7 +71,7 @@ class HBaseReceiver(reqCols: util.ArrayList[String],
       val res = resultScanner.next()
       while(res != null) {
         val row = Bytes.toString(res.getRow())
-        res.getRow
+        println("Got row: %s".format(row))
         val rowVal = row.toInt
         if (rowVal - minRow > 1) {
           // If the difference between the last valid row and this row is >1, then stop the current
