@@ -4,14 +4,15 @@ from ts2.util.utils import grouper
 from ts2.etl.feeder import Feeder
 from pyspark.streaming import StreamingContext
 from pyspark.streaming.dstream import DStream
-from pyspark.serializers import NoOpSerializer
+from pyspark.serializers import NoOpSerializer, PairDeserializer
 import os
 
 from ts2.util.log import warningLog
 
 import ts2.settings as settings
 
-from py4j.java_gateway import java_import
+from py4j.java_gateway import java_import, Py4JJavaError
+from py4.java_collections import ListConverter
 
 class ThunderStreamingContext(object):
     """
@@ -94,18 +95,29 @@ class ThunderStreamingContext(object):
         pass
 
     def loadBytesDStream(self, datasetId=DATA_KEY):
-        from py4j.java_collections import ListConverter
+        """
+        """
         jvm = self._sc._jvm
         java_import(jvm, "thunder_streaming.receivers.*")
+
         feeder_conf = self._feeder.conf
-        return DStream(
-            self.ssc._jssc.receiverStream(jvm.HBaseReceiver(
-                ListConverter().convert(feeder_conf.get_sequence_names(), jvm._gateway_client),
-                settings.BASE_COL_FAM,
-                datasetId,
-                settings.MAX_KEY,
-                self.batch_time)),
-            self.ssc, NoOpSerializer())
+        ser = PairDeserializer(NoOpSerializer(), NoOpSerializer())
+
+        dstream = None
+        try:
+            # TODO: are there closure problems with this approach? (why do Jascha/KafkaUtils do it differently?)
+            dstream = DStream(
+                self.ssc._jssc.receiverStream(jvm.HBaseReceiver(
+                    ListConverter().convert(feeder_conf.get_sequence_names(), jvm._gateway_client),
+                    settings.BASE_COL_FAM,
+                    datasetId,
+                    settings.MAX_KEY,
+                    self.batch_time)),
+                self.ssc, ser)
+            return dstream.map(lambda kv: (kv[0], bytes(kv[1])))
+        except Py4JJavaError as e:
+            print "Could not create the synchronized DStream."
+            raise e
 
     def loadSeriesDStream(self, datasetId=DATA_KEY):
         pass
