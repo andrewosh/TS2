@@ -12,7 +12,7 @@ from ts2.util.log import warningLog
 import ts2.settings as settings
 
 from py4j.java_gateway import java_import, Py4JJavaError
-from py4.java_collections import ListConverter
+from py4j.java_collections import ListConverter
 
 class ThunderStreamingContext(object):
     """
