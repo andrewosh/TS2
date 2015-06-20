@@ -73,7 +73,7 @@ class ThunderStreamingContext(object):
     def stop_streaming(self):
         for loader in self.dstream_loaders:
             loader.stop()
-        self.ssc.stop()
+        self.ssc.stop(stopSparkContext=False)
 
     def loadBytes(self, datasetId=DATA_KEY, minTime=0, maxTime=10):
         def _lb(first, last):
