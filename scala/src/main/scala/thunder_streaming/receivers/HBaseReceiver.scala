@@ -80,16 +80,16 @@ class HBaseReceiver(reqCols: util.ArrayList[String],
           while (res != null) {
             val row = Bytes.toString(res.getRow())
             println("Got row: %s".format(row))
+
             val rowVal = row.toInt
             if (rowVal - minRow > 1) {
               // If the difference between the last valid row and this row is >1, then stop the current
               // iteration
               break
             }
-            if (rowVal > minRow) {
-              // The subsequent batches should start on the next row
-              minRow = rowVal + 1
-            }
+            // The subsequent batches should start on the next row
+            minRow = rowVal + 1
+
             val cols = res.getValue(Bytes.toBytes(family), Bytes.toBytes(dataSet))
             println("Storing row of length: %d".format(cols.length))
             store((row, cols))
