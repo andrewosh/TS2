@@ -1,4 +1,5 @@
 
+from ts2.data.streaming_data import StreamingData
 
 class StreamingImages(StreamingData):
     """
