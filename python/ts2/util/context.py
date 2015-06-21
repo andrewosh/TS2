@@ -100,8 +100,8 @@ class ThunderStreamingContext(object):
 
     def loadSeries(self, datasetId=DATA_KEY, dtype='uint16', minTime=0, maxTime=10):
         bytes = self._loadBytes(datasetId, minTime, maxTime)
-        keyed_rdd = bytes.flatMap(lambda (k, v): (k, map(lambda (idx, vi): (idx, (k, vi)),
-                                                         list(enumerate(np.fromstring(v, dtype=dtype))))))
+        keyed_rdd = bytes.flatMap(lambda (k, v): map(lambda (idx, vi): (idx, (k, vi)),
+                                                         list(enumerate(np.fromstring(v, dtype=dtype)))))
         rdd = keyed_rdd.groupByKey().map(lambda (k, v): (k, map(lambda (ki, vi): vi, sorted(v))))
         return Series(rdd, dtype=dtype)
 
