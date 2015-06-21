@@ -1,18 +1,23 @@
 from ts2.db.manager import HBaseManager
-from ts2.data.dstream_loader import DStreamLoader
 from ts2.util.utils import grouper
 from ts2.etl.feeder import Feeder
+from ts2.data.streaming_data import StreamingData
+from ts2.data.streaming_series import StreamingSeries
+from ts2.data.streaming_images import StreamingImages
 from pyspark.streaming import StreamingContext
 from pyspark.streaming.dstream import DStream
 from pyspark.serializers import NoOpSerializer, PairDeserializer
 import os
 
-from ts2.util.log import warningLog
+from thunder import Series, Images
 
+from ts2.util.log import warningLog
 import ts2.settings as settings
 
 from py4j.java_gateway import java_import, Py4JJavaError
 from py4j.java_collections import ListConverter
+
+import numpy as np
 
 class ThunderStreamingContext(object):
     """
@@ -75,7 +80,7 @@ class ThunderStreamingContext(object):
             loader.stop()
         self.ssc.stop(stopSparkContext=False)
 
-    def loadBytes(self, datasetId=DATA_KEY, minTime=0, maxTime=10):
+    def _loadBytes(self, datasetId=DATA_KEY, minTime=0, maxTime=10):
         def _lb(first, last):
             # TODO optimize this
             manager = HBaseManager()
@@ -88,13 +93,19 @@ class ThunderStreamingContext(object):
         chunk_rdd = self._sc.parallelize([(group[0], group[-1] + 1) for group in chunk_iter])
         return chunk_rdd.flatMap(lambda (first, last): _lb(first, last))
 
-    def loadImages(self, datasetId=DATA_KEY, minTime=0, maxTime=-1):
-        pass
+    def loadImages(self, datasetId=DATA_KEY, dtype='uint16', dims=None, minTime=0, maxTime=10):
+        bytes = self._loadBytes(datasetId, minTime, maxTime)
+        rdd =  bytes.map(lambda (k, v): (k, np.fromstring(v, dtype=dtype).reshape(dims)))
+        return Images(rdd, dims=dims, dtype=dtype)
 
-    def loadSeries(self, datasetId=DATA_KEY, minTime=0, maxTime=-1):
-        pass
+    def loadSeries(self, datasetId=DATA_KEY, dtype='uint16', minTime=0, maxTime=10):
+        bytes = self._loadBytes(datasetId, minTime, maxTime)
+        keyed_rdd = bytes.flatMap(lambda (k, v): (k, map(lambda (idx, vi): (idx, (k, vi)),
+                                                         list(enumerate(np.fromstring(v, dtype=dtype))))))
+        rdd = keyed_rdd.groupByKey().map(lambda (k, v): (k, map(lambda (ki, vi): vi, sorted(v))))
+        return Series(rdd, dtype=dtype)
 
-    def loadBytesDStream(self, datasetId=DATA_KEY):
+    def _loadBytesDStream(self, datasetId=DATA_KEY):
         """
         """
         jvm = self._sc._jvm
@@ -103,7 +114,6 @@ class ThunderStreamingContext(object):
         feeder_conf = self._feeder.conf
         ser = PairDeserializer(NoOpSerializer(), NoOpSerializer())
 
-        dstream = None
         try:
             # TODO: are there closure problems with this approach? (why do Jascha/KafkaUtils do it differently?)
             dstream = DStream(
@@ -119,30 +129,12 @@ class ThunderStreamingContext(object):
             print "Could not create the synchronized DStream."
             raise e
 
-    def loadSeriesDStream(self, datasetId=DATA_KEY):
-        pass
+    def loadSeriesDStream(self, datasetId=DATA_KEY, dtype='uint16'):
+        bytes = self._loadBytesDStream(datasetId)
+        return StreamingSeries(bytes, dtype)
 
-    def loadImagesDStream(self, datasetId=DATA_KEY):
-        pass
-
-    # TODO: Remove the following obsolete methods
-
-    """
-    def getBytesDStream(self, datasetId=DATA_KEY):
-        q = []
-
-        dstream = self.ssc.queueStream(q)
-        loader = DStreamLoader(self, datasetId, q, self._poll_time)
-        self.dstream_loaders.append(loader)
-        print "Starting DStreamLoader in background..."
-        loader.start()
-        return dstream
-
-    def getImagesDStream(self, datasetId=DATA_KEY):
-        pass
-
-    def getSeriesDStream(self, datasetId=DATA_KEY):
-        pass
-    """
+    def loadImagesDStream(self, datasetId=DATA_KEY, dtype='uint16'):
+        bytes = self.loadBytesDStream(datasetId)
+        return StreamingImages(bytes, dtype)
 
     # TODO: Load regressors
